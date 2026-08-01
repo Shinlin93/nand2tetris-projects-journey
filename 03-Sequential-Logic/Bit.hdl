@@ -1,6 +1,7 @@
 // This file is part of www.nand2tetris.org
 // and the book "The Elements of Computing Systems"
 // by Nisan and Schocken, MIT Press.
+// File name: projects/3/a/Bit.hdl
 /**
  * 1-bit register:
  * If load is asserted, the register's value is set to in;
@@ -11,6 +12,10 @@ CHIP Bit {
     IN in, load;
     OUT out;
 
-    PARTS:
+    PARTS: Mux(a=dffOut, b=in, sel=load, out=muxOut);
+    DFF(in=muxOut, out=dffOut);
+    Or(a=dffOut, b=false, out=out);
+    
+
     //// Replace this comment with your code.
 }

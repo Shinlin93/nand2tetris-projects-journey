@@ -1,6 +1,7 @@
 // This file is part of www.nand2tetris.org
 // and the book "The Elements of Computing Systems"
 // by Nisan and Schocken, MIT Press.
+// File name: projects/1/Or.hdl
 /**
  * Or gate:
  * if (a or b) out = 1, else out = 0 
@@ -9,6 +10,10 @@ CHIP Or {
     IN a, b;
     OUT out;
 
-    PARTS:
-    //// Replace this comment with your code.
+    PARTS: 
+    Nand(a=a, b=a, out=w1); //input pada logika nand adalah dari 1 jalur input yaitu a
+    Nand(a=b, b=b, out=w2); //input pada logika nand adalah dari 1 jalur input yaitu b
+    Nand(a=w1, b=w2 , out=out); //input nand dari output nand ke-1 dan output nand ke-2 yaitu w=1 & w2
+
+    
 }

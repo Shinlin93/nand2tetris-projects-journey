@@ -1,6 +1,7 @@
 // This file is part of www.nand2tetris.org
 // and the book "The Elements of Computing Systems"
 // by Nisan and Schocken, MIT Press.
+// File name: projects/3/a/PC.hdl
 /**
  * A 16-bit counter.
  * if      reset(t): out(t+1) = 0
@@ -9,9 +10,35 @@
  * else              out(t+1) = out(t)
  */
 CHIP PC {
-    IN in[16],inc, load, reset;
+    IN in[16], reset, load, inc;
     OUT out[16];
     
-    PARTS:
+    PARTS: 
+    // 1. Hitung nilai berikutnya (n + 1)
+    Inc16(in=outloop, out=incout);
+
+    // 2. Pilih antara: Tetap (outloop) atau Tambah 1 (incout)
+    // Gunakan sinyal 'inc' sebagai selector
+    Mux16(a=outloop, b=incout, sel=inc, out=incsel);
+
+    // 3. Pilih antara: Hasil increment (incsel) atau Nilai baru (in)
+    // Gunakan sinyal 'load' sebagai selector
+    Mux16(a=incsel, b=in, sel=load, out=loadsel);
+
+    // 4. Pilih antara: Hasil load/inc (loadsel) atau Reset (0)
+    // Gunakan sinyal 'reset' sebagai selector
+    Mux16(a=loadsel, b=false, sel=reset, out=final);
+
+    // 5. Simpan ke Register
+    Register(in=final, load=true, out=outloop, out=out);
+
+
+    //outloop = nilai PC saat ini (hasil baca Register)
+    //incout = outloop + 1
+    //in = alamat baru dari luar PC (biasanya dari CPU/A Register saat jump)
+    //final = nilai yang akhirnya ditulis kembali ke Register
+    //Karena itulah PC sebenarnya adalah sebuah Register 16-bit y
+    
+    }
+     
     //// Replace this comment with your code.
-}
