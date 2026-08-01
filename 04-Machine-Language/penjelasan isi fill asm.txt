@@ -1,0 +1,207 @@
+// ==========================================================
+// Fill.asm
+// Project 4 - nand2tetris
+//
+// Tujuan:
+// Jika keyboard ditekan -> seluruh layar menjadi hitam.
+// Jika keyboard dilepas -> seluruh layar menjadi putih.
+//
+// Konsep yang dipakai:
+// - Memory Mapped I/O
+// - Loop
+// - Pointer (SCREENPTR)
+// - Jump
+// ==========================================================
+
+
+// ======================= MAIN ==============================
+// MAIN adalah awal program.
+// CPU akan terus kembali ke sini untuk mengecek keyboard.
+(MAIN)
+
+@KBD
+// A = 24576 (alamat keyboard)
+D=M
+// D = RAM[24576]
+// Jika keyboard tidak ditekan -> D = 0
+// Jika keyboard ditekan -> D = kode ASCII tombol
+
+@BLACK
+// A = alamat label BLACK di ROM
+D;JNE
+// Jika D != 0 (keyboard ditekan)
+// Program Counter lompat ke BLACK
+
+@WHITE
+// Jika D == 0
+// CPU membaca instruksi berikutnya
+0;JMP
+// Lompat tanpa syarat ke WHITE
+
+
+// ======================= BLACK ==============================
+(BLACK)
+
+// -----------------------------------------------------------
+// Inisialisasi SCREENPTR
+// SCREENPTR adalah pointer yang menunjuk alamat layar
+// pertama (16384)
+// -----------------------------------------------------------
+
+@SCREEN
+// A = 16384 (alamat awal Screen)
+D=A
+// D = 16384
+
+@SCREENPTR
+// SCREENPTR adalah variabel
+// Misalnya assembler menaruhnya di RAM[16]
+M=D
+// RAM[16] = 16384
+// SCREENPTR sekarang menunjuk layar pertama
+
+
+// =================== BLACK LOOP =============================
+(BLACK_LOOP)
+
+// -----------------------------------------------------------
+// Cek apakah SCREENPTR sudah mencapai keyboard
+// Kalau sudah berarti seluruh layar sudah selesai diisi
+// -----------------------------------------------------------
+
+@SCREENPTR
+D=M
+// D = isi SCREENPTR
+// Misalnya D = 16384
+
+@KBD
+// A = 24576
+
+D=D-A
+// D = SCREENPTR - KBD
+//
+// Kalau SCREENPTR = 16384
+// maka D = -8192
+//
+// Kalau SCREENPTR = 24576
+// maka D = 0
+
+@MAIN
+D;JEQ
+// Jika D == 0
+// berarti SCREENPTR sudah mencapai keyboard
+// Artinya seluruh layar selesai diisi
+// Kembali lagi ke MAIN untuk mengecek keyboard
+
+
+// -----------------------------------------------------------
+// Menghitamkan satu word layar
+// -----------------------------------------------------------
+
+@SCREENPTR
+// A = alamat SCREENPTR (misalnya RAM[16])
+
+A=M
+// A = isi SCREENPTR
+// Misalnya:
+// RAM[16] = 16384
+// Maka sekarang A = 16384
+
+M=-1
+// RAM[16384] = -1
+// Word layar ini menjadi hitam
+//
+// -1 = 1111111111111111
+// 16 bit semuanya bernilai 1
+// Berarti 16 pixel menjadi hitam
+
+
+// -----------------------------------------------------------
+// Pindah ke word layar berikutnya
+// -----------------------------------------------------------
+
+@SCREENPTR
+// A = alamat SCREENPTR
+
+M=M+1
+// SCREENPTR++
+//
+// Misalnya
+// 16384
+// menjadi
+// 16385
+
+
+// -----------------------------------------------------------
+// Ulangi proses
+// -----------------------------------------------------------
+
+@BLACK_LOOP
+0;JMP
+// Lompat kembali ke BLACK_LOOP
+// Isi word berikutnya
+// Sampai SCREENPTR mencapai KBD
+
+
+// ======================= WHITE ==============================
+(WHITE)
+
+// -----------------------------------------------------------
+// Sama seperti BLACK
+// Tetapi nanti layar akan diisi angka 0
+// -----------------------------------------------------------
+
+@SCREEN
+D=A
+
+@SCREENPTR
+M=D
+
+
+// =================== WHITE LOOP =============================
+(WHITE_LOOP)
+
+// Cek apakah seluruh layar sudah selesai diproses
+
+@SCREENPTR
+D=M
+
+@KBD
+
+D=D-A
+
+@MAIN
+D;JEQ
+
+
+// -----------------------------------------------------------
+// Memutihkan satu word layar
+// -----------------------------------------------------------
+
+@SCREENPTR
+
+A=M
+// A = isi SCREENPTR
+
+M=0
+// RAM[alamat layar] = 0
+//
+// 0000000000000000
+//
+// Semua pixel menjadi putih
+
+
+// -----------------------------------------------------------
+// Pindah ke word berikutnya
+// -----------------------------------------------------------
+
+@SCREENPTR
+M=M+1
+
+
+// -----------------------------------------------------------
+// Ulangi lagi
+// -----------------------------------------------------------
+
+@WHITE_LOOP
+0;JMP
